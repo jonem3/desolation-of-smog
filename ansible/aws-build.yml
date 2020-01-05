@@ -1,0 +1,41 @@
+---
+
+- hosts: aws
+  remote_user: ubuntu
+  tasks:
+    # ROOT block
+    - block:
+        - debug:
+            msg: "This is a message"
+
+        - name: update and upgrade apt
+          apt:
+            upgrade: yes
+            update_cache: yes
+            force: yes
+            cache_valid_time: 86400
+
+        - name: install apt packages
+          apt:
+            name: "{{item}}"
+            state: present
+            update_cache: no
+            force: yes
+          with_items:
+            - mysql-server
+            - mysql-client
+            - python3
+            - python3-pip
+            - python3-setuptools
+            - ntp
+
+      become: yes
+      become_user: root
+
+    - block:
+        #Block as user Ubuntu
+        - name: Copy REAMDE file to the home directory.
+          copy:
+            src: ./resources/README
+            dest: ~/
+            mode: 0444
